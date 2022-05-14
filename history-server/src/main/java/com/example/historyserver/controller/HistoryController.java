@@ -2,6 +2,7 @@ package com.example.historyserver.controller;
 
 import com.example.historyserver.model.Question;
 import com.example.historyserver.repository.QuestionRepository;
+import com.example.historyserver.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,11 +18,11 @@ import java.util.stream.Collectors;
 public class HistoryController {
 
     @Autowired
-    private QuestionRepository questionRepository;
+    private QuestionService questionService;
 
     @GetMapping("/questions")
     public List<Question> getQuestions(@RequestParam int amount) {
-        List<Question> questions = questionRepository.findAll();
+        List<Question> questions = questionService.getAll();
         Collections.shuffle(questions);
         return questions.stream().limit(amount).collect(Collectors.toList());
     }
