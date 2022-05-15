@@ -12,5 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Section {
+    private String name;
     private List<Question> questions;
 }

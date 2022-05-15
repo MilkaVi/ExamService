@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,13 +23,11 @@ import java.util.Map;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class ExamController {
 
-    @Autowired
-    DiscoveryClient discoveryClient;
-
-    @Autowired
-    ExamService examService;
+    private final DiscoveryClient discoveryClient;
+    private final ExamService examService;
 
     @PostMapping("/exam")
     public Exam getExam(@RequestBody Map<String, Integer> spec) {
@@ -37,7 +36,7 @@ public class ExamController {
 
     @PostMapping("/create")
     public ResponseEntity<Question> getExam(@RequestParam String spec, @RequestBody Question question) {
-        return examService.createQuestion(spec, question);
+        return ResponseEntity.ok(examService.createQuestion(spec, question));
     }
 
     @GetMapping("/specs")

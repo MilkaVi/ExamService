@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,30 +26,31 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ExamService {
-    @Autowired
-    RestTemplate restTemplate;
-    @Autowired
-    RedisRepository repository;
+    private final RestTemplate restTemplate;
+    private final RedisRepository repository;
     ObjectMapper objectMapper = new ObjectMapper();
     private static final String HISTORY = "HISTORY";
 
     public Exam getExam(Map<String, Integer> spec) {
+        repository.deleteAll();
         List<Section> sections = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : spec.entrySet()) {
             String url = getUrl(entry);
             if (entry.getKey().equals(HISTORY)) {
-                sections.add(new Section(getHistoryQuestion(url, entry.getValue())));
+                sections.add(new Section(entry.getKey(), getHistoryQuestion(url, entry.getValue())));
                 continue;
             }
-            sections.add(new Section(Arrays.asList(restTemplate.getForObject(url, Question[].class))));
+            sections.add(new Section(entry.getKey(), Arrays.asList(restTemplate.getForObject(url, Question[].class))));
         }
         return new Exam("EXAM", sections);
     }
 
-    public ResponseEntity<Question> createQuestion(String spec, Question question) {
+    public Question createQuestion(String spec, Question question) {
         String url = getUrl(Maps.immutableEntry(spec, 1));
-        return restTemplate.postForEntity(url, question, Question.class);
+        ResponseEntity<Question> response = restTemplate.postForEntity(url, question, Question.class);
+        return response.getBody();
     }
 
     private String getUrl(Map.Entry<String, Integer> entry) {
