@@ -40,7 +40,6 @@ public class ExamController {
 
     @PostMapping("/exam")
     public Exam getExam(@RequestBody Map<String, Integer> spec) {
-        repository.deleteAll();
         List<Section> sections = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : spec.entrySet()) {
             String url = getUrl(entry);
