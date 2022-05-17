@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  config-server:
+    image: config/config-service:0.0.1-SNAPSHOT
+    ports:
+       - "8071:8071"
+
+  tour-server:
+    image: exams/exam-service:0.0.1-SNAPSHOT
+    environment:
+      - CONFIG_SERVER_URL=http://config-server:8071
+    ports:
+       - "8080:8080"
+    depends_on:
+      - config-server
+

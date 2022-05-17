@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,6 @@ public class ExamService {
     private static final String HISTORY = "HISTORY";
 
     public Exam getExam(Map<String, Integer> spec) {
-        repository.deleteAll();
         List<Section> sections = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : spec.entrySet()) {
             String url = getUrl(entry);

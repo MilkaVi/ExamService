@@ -3,7 +3,6 @@ version: '3'
 services:
   history-database:
     image: postgres:latest
-    container_name: historydb
     ports:
       - "5433:5432"
     environment:
@@ -33,36 +32,67 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
   redisserver:
     image: redis:alpine
     ports:
       - "6379:6379"
         
-        
-#  config-server:
-#    image: config/config-service:0.0.1-SNAPSHOT
-#    ports:
-#       - "8071:8071"
-#    container_name: config-server   
-#    environment:
-#      CONFIG_URL: http://config-server:8071
-#      ENCRYPT_KEY: "fje83Ki8403Iod87dne7Yjsl3THueh48jfuO9j4U2hf64Lo"
-#    build: .
-#    networks:
-#      - servicenet
-#
-#  tourserver:
-#
-#    build: .
-#    container_name: tourserver
-#    restart: on-failure
-#    networks:
-#      - servicenet
-#    image: exams/exam-service:0.0.1-SNAPSHOT
-#    ports:
-#       - "8080:8080"
-#
-#
-#
-#networks:
-#  servicenet:
+
+
+  config-server:
+    image: config/config-service:0.0.1-SNAPSHOT
+    ports:
+      - "8071:8071"
+
+  eureka-server:
+    image: eureka/eureka:0.0.1-SNAPSHOT
+    environment:
+      - CONFIG_SERVER_URL=http://config-server:8071
+    ports:
+      - "8070:8070"
+    depends_on:
+      - config-server
+
+
+
+  exams-server:
+    image: exams/exam-service:0.0.1-SNAPSHOT
+    environment:
+      - CONFIG_SERVER_URL=http://config-server:8071
+      - CONFIG_EUREKA_URL=http://eureka-server:8070/eureka/
+      - KAFKA_BOOTSTRAP_SERVER=broker:29092
+      - RADIS_HOST=redisserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      - config-server
+      - eureka-server
+      - broker
+
+  math-server:
+    image: math/math-server:0.0.1-SNAPSHOT
+    environment:
+      - CONFIG_SERVER_URL=http://config-server:8071
+      - CONFIG_EUREKA_URL=http://eureka-server:8070/eureka/
+    ports:
+     - "8082:8082"
+    depends_on:
+      - config-server
+      - eureka-server
+
+  history-server:
+    image: history/history-server:0.0.1-SNAPSHOT
+    environment:
+      - CONFIG_SERVER_URL=http://config-server:8071
+      - CONFIG_EUREKA_URL=http://eureka-server:8070/eureka/
+      - JDBC_URL=jdbc:postgresql://history-database:5432/historydb
+      - KAFKA_BOOTSTRAP_SERVER=broker:29092
+    ports:
+      - "8081:8081"
+    depends_on:
+      - config-server
+      - eureka-server
+
+#  docker-compose restart eureka-server
+#  docker-compose restart exams-server math-server history-server

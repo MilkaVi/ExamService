@@ -1,5 +1,6 @@
 package com.example.examservice;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
@@ -15,7 +16,11 @@ import org.springframework.web.client.RestTemplate;
 @RefreshScope
 @EnableEurekaClient
 public class ExamServiceApplication {
+	@Value("${redis.server}")
+	private String redisServer="";
 
+	@Value("${redis.port}")
+	private String redisPort="";
 	public static void main(String[] args) {
 		SpringApplication.run(ExamServiceApplication.class, args);
 	}
@@ -28,7 +33,7 @@ public class ExamServiceApplication {
 
 	@Bean
 	JedisConnectionFactory jedisConnectionFactory() {
-		RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration("localhost", 6379);
+		RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisServer, Integer.parseInt(redisPort));
 		return new JedisConnectionFactory(redisStandaloneConfiguration);
 	}
 
