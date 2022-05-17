@@ -41,12 +41,12 @@ services:
 
 
   config-server:
-    image: config/config-service:0.0.1-SNAPSHOT
+    image: config-docker:latest
     ports:
       - "8071:8071"
 
   eureka-server:
-    image: eureka/eureka:0.0.1-SNAPSHOT
+    image: eureka-docker:latest
     environment:
       - CONFIG_SERVER_URL=http://config-server:8071
     ports:
@@ -57,7 +57,7 @@ services:
 
 
   exams-server:
-    image: exams/exam-service:0.0.1-SNAPSHOT
+    image: exam-docker:latest
     environment:
       - CONFIG_SERVER_URL=http://config-server:8071
       - CONFIG_EUREKA_URL=http://eureka-server:8070/eureka/
@@ -71,7 +71,7 @@ services:
       - broker
 
   math-server:
-    image: math/math-server:0.0.1-SNAPSHOT
+    image: math-docker:latest
     environment:
       - CONFIG_SERVER_URL=http://config-server:8071
       - CONFIG_EUREKA_URL=http://eureka-server:8070/eureka/
@@ -82,7 +82,7 @@ services:
       - eureka-server
 
   history-server:
-    image: history/history-server:0.0.1-SNAPSHOT
+    image: history-docker:latest
     environment:
       - CONFIG_SERVER_URL=http://config-server:8071
       - CONFIG_EUREKA_URL=http://eureka-server:8070/eureka/
@@ -94,5 +94,6 @@ services:
       - config-server
       - eureka-server
 
+#  docker build --tag image-name .
 #  docker-compose restart eureka-server
 #  docker-compose restart exams-server math-server history-server
